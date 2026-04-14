@@ -53,5 +53,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/Rovemark/logica-context.git"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
