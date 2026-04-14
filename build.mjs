@@ -1,4 +1,5 @@
 import { build } from 'esbuild';
+import { chmodSync } from 'fs';
 
 const shared = {
   bundle: true,
@@ -25,5 +26,9 @@ await build({
   outfile: 'dist/cli.mjs',
   banner: { js: '#!/usr/bin/env node' },
 });
+
+// Set executable permissions
+chmodSync('dist/cli.mjs', 0o755);
+chmodSync('dist/server.mjs', 0o755);
 
 console.log('Build complete: dist/server.mjs + dist/cli.mjs');
