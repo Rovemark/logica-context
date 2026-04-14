@@ -3,212 +3,269 @@
 <div align="center">
 
 [![npm version](https://img.shields.io/npm/v/logica-context?color=blue&label=npm)](https://www.npmjs.com/package/logica-context)
-[![npm downloads](https://img.shields.io/npm/dm/logica-context)](https://www.npmjs.com/package/logica-context)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/Rovemark/logica-context/actions/workflows/ci.yml/badge.svg)](https://github.com/Rovemark/logica-context/actions/workflows/ci.yml)
-[![Node.js](https://img.shields.io/node/v/logica-context)](https://nodejs.org)
 [![MCP Compatible](https://img.shields.io/badge/MCP-compatible-brightgreen)](https://modelcontextprotocol.io)
 
-**MCP server that protects your AI context window via sandboxed execution and smart indexing.**
+**Your AI forgets everything after a context reset. Ours doesn't.**
 
-[Quick Start](#quick-start) · [Tools Reference](#tools-reference) · [Benchmarks](#benchmarks) · [Contributing](CONTRIBUTING.md)
+[Quick Start](#quick-start) · [What Makes It Different](#what-makes-it-different) · [All 17 Tools](#all-17-tools) · [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## The Problem
+## The Problem Everyone Has
 
-AI coding assistants have limited context windows. When Claude runs `git log`, `cat large-file.ts`, or `npm ls --all`, the raw output floods your conversation — consuming thousands of tokens in seconds.
+Every MCP context server does the same thing: runs commands in a sandbox, returns summaries, saves tokens. That's table stakes.
 
-**Result:** Less room for actual code, more frequent context resets, interrupted workflows.
+Here's what none of them solve:
 
-## The Solution
+- Your AI doesn't know your project exists until you explain it. Every. Single. Session.
+- Knowledge dies when the session ends. Tomorrow you start from zero.
+- Your teammate indexed the same codebase yesterday. You can't access any of it.
+- "Find the auth code" returns nothing because the file is called `middleware.ts`.
+- You have no idea how much context you've burned. You find out when the AI starts hallucinating.
+- The AI doesn't know you just pushed 3 commits. It's still referencing yesterday's code.
 
-Logica Context sits between your AI and the shell. It intercepts operations, executes them in a sandbox, indexes results into a local SQLite knowledge base, and returns only concise summaries.
+**Logica Context fixes all six.**
+
+## What Makes It Different
+
+### 1. Project DNA
+
+Other tools: AI starts every session blind. You waste 5 minutes explaining your stack.
+
+**Logica Context:** One call to `lctx_scan` and the AI permanently knows your project — languages, frameworks, dependencies, folder structure, patterns. Indexed. Searchable. Automatic.
 
 ```
-Without Logica Context:
-  AI → run git log → 8,000 tokens consumed ❌
+> lctx_scan
 
-With Logica Context:
-  AI → lctx_execute(git log) → 200 tokens, full data indexed → searchable forever ✅
+Project DNA: my-saas-app
+  Stack: Node.js, TypeScript
+  Frameworks: Next.js, Prisma, Tailwind CSS, Vitest
+  Languages: TypeScript (142), JavaScript (23), SQL (8)
+  Patterns: component-based, page-based routing, API layer, CI/CD
+  Key files: package.json, tsconfig.json, Dockerfile, .env.example
 ```
 
-## Benchmarks
+The AI now knows your project before you type a single word.
 
-| Scenario | Without | With | Savings |
-|----------|---------|---------|---------|
-| `git log` (100 commits) | ~8,000 tokens | ~200 tokens | **97.5%** |
-| `cat large-file.ts` (500 lines) | ~4,000 tokens | ~150 tokens | **96.3%** |
-| `npm ls --all` | ~12,000 tokens | ~300 tokens | **97.5%** |
-| `find . -name "*.ts"` (200 files) | ~3,000 tokens | ~100 tokens | **96.7%** |
-| Fetch HTML page (50KB) | ~12,500 tokens | ~500 tokens | **96.0%** |
+---
 
-*Measured on Apple M1, Node.js 20, SQLite 3.45. See [BENCHMARK.md](BENCHMARK.md) for full details.*
+### 2. Cross-Session Memory
 
-## Features
+Other tools: session ends, everything is gone. You re-explain context every morning.
 
-- 🛡️ **Sandboxed execution** — Shell, Node, Python, Ruby, Go, Swift, Rust, Deno without polluting context
-- 🔍 **Smart indexing** — SQLite FTS5 knowledge base with BM25 ranking and Porter stemming
-- ⚡ **Batch operations** — Run N commands + N queries in a single MCP call
-- 🌐 **URL fetching** — Fetch, convert HTML → Markdown, index automatically
-- 🔁 **Session continuity** — Snapshots persist context across Claude resets
-- ☁️ **Supabase integration** — Optional cross-machine persistence for agent memory and sessions
-- 🪝 **Claude Code hooks** — `PreToolUse` and `SessionStart` hooks for automatic interception
+**Logica Context:** Knowledge persists between sessions via Supabase. Open a new session tomorrow and the AI already knows what you worked on, what you indexed, what you searched for. It picks up where you left off.
+
+No other MCP server does this.
+
+---
+
+### 3. Team Knowledge Base
+
+Other tools: each developer is an island. Dev A spends 30 minutes mapping the codebase. Dev B does the same thing an hour later.
+
+**Logica Context:** `lctx_team_push` and `lctx_team_search`. Dev A indexes something, Dev B finds it. Shared knowledge base via Supabase, namespaced by project.
+
+Your whole team builds collective AI memory.
+
+---
+
+### 4. Semantic Search
+
+Other tools: keyword matching. Search "authentication" and miss `verifyJWT()` because the word "auth" isn't in the function name.
+
+**Logica Context:** `lctx_semantic` uses real embeddings (Voyage AI or OpenAI) + pgvector for similarity search. Search by meaning, not strings. "How does login work?" finds your JWT middleware, your session store, your OAuth flow.
+
+FTS5 keyword search is still there as the fast default. Semantic search activates when you have an API key.
+
+---
+
+### 5. Context Budget
+
+Other tools: you have no idea how much context you've consumed until the AI starts forgetting things.
+
+**Logica Context:** `lctx_budget` shows a real-time dashboard:
+
+```
+# Context Budget
+
+[▓▓▓▓▓▓▓▓▓▓▓▓▓▓······] 72% used
+
+Tokens consumed: 144,000
+Tokens saved:    38,500
+Context limit:   200,000
+
+## Recent Tool Usage
+  Bash                 in:    2,400  out:    8,200
+  Read                 in:    1,800  out:    4,100
+  lctx_execute         in:      200  out:    6,300
+
+⚠ WARNING: Context 72% full. Use lctx tools to save space.
+```
+
+You see exactly where your tokens go. You optimize before it's too late.
+
+---
+
+### 6. Git-Aware Indexing
+
+Other tools: the AI doesn't know you just pushed code. It's referencing stale context from 2 hours ago.
+
+**Logica Context:** `lctx_git` indexes your current branch, recent commits, staged files, and diff summary. The AI starts every session knowing what changed.
+
+```
+> lctx_git
+
+Branch: feat/auth-refactor
+Ahead: 3 commits
+
+## Staged (2)
+  + src/middleware/jwt.ts
+  + tests/auth.test.ts
+
+## Recent Commits
+  a3f8b2c refactor: extract JWT validation into middleware
+  9e1d445 fix: session expiry race condition
+  2b7a901 test: add auth integration tests
+```
+
+No more "can you check what I changed?" — the AI already knows.
+
+---
+
+### 7. MCP Aggregator
+
+Other tools: you have 8 MCP servers loaded. Each one adds tool definitions to the context. You don't know which ones are costing you.
+
+**Logica Context:** `lctx_mcp` reads your `.mcp.json`, lists every active server, estimates their context cost, and recommends which ones to disable.
+
+```
+> lctx_mcp
+
+# MCP Servers
+
+Active: 8
+Estimated context cost per cycle: ~3,200 tokens
+
+## Servers
+  supabase               npx @supabase/mcp      ~800 tokens
+  notion                 npx @notion/mcp         ~800 tokens
+  logica-context         npx logica-context       ~150 tokens
+  ...
+
+## Recommendations
+  - 8 MCP servers active. Consider disabling unused ones.
+  - Heavy servers: supabase, notion. Each call uses ~800 tokens.
+```
+
+---
 
 ## Quick Start
 
-### Claude Code (recommended)
-
-Add to your project's `.mcp.json`:
-
 ```json
 {
-  "mcpServers": {
-    "logica-context": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "logica-context"]
-    }
+  "logica-context": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "logica-context"]
   }
 }
 ```
 
-Restart Claude Code — the server starts automatically.
+Add to `.mcp.json`. Restart your AI. Done.
 
-### Global install
-
-```bash
-npm install -g logica-context
-logica-context        # Start MCP server
-logica-context doctor # Verify installation
-```
-
-### With Supabase (cross-machine persistence)
+### Enable Supabase (for features 2, 3, 4)
 
 ```env
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_KEY=your-service-key
-LCTX_SUPABASE=true
 ```
 
-## Tools Reference
+### Enable Semantic Search (feature 4)
 
-| Tool | Description | Key Params |
-|------|-------------|------------|
-| `lctx_batch_execute` | Run N commands + N search queries in one call | `commands[]`, `queries[]` |
-| `lctx_execute` | Sandboxed code execution | `code`, `lang` (shell/node/python/ruby/go/swift/rust/deno) |
-| `lctx_execute_file` | Process files without flooding context | `path`, `query` |
-| `lctx_index` | Index text into the knowledge base | `content`, `source`, `tags[]` |
-| `lctx_search` | BM25 full-text search over indexed data | `query`, `limit` |
-| `lctx_fetch_and_index` | Fetch URL → Markdown → index | `url` |
-| `lctx_stats` | Knowledge base statistics | — |
-| `lctx_doctor` | Diagnose installation and dependencies | — |
-| `lctx_upgrade` | Check for updates on npm | — |
-| `lctx_purge` | Clear the knowledge base | `confirm` |
-
-### Example: Batch execute
-
-```json
-{
-  "tool": "lctx_batch_execute",
-  "params": {
-    "commands": [
-      { "code": "git log --oneline -50", "lang": "shell" },
-      { "code": "npm ls --all", "lang": "shell" }
-    ],
-    "queries": [
-      { "query": "authentication functions", "limit": 5 }
-    ]
-  }
-}
+```env
+VOYAGE_API_KEY=your-key    # or OPENAI_API_KEY
 ```
 
-Returns summaries only — full output is indexed and searchable.
+## All 17 Tools
 
-### Example: Index + Search
+### Core (10 tools — what every context server should do)
 
-```json
-// Index a document
-{ "tool": "lctx_index", "params": { "content": "...", "source": "architecture.md" } }
+| Tool | Description |
+|------|-------------|
+| `lctx_batch_execute` | Run N commands + N search queries in one call |
+| `lctx_execute` | Sandboxed execution (shell, node, python, ruby, go, swift, rust, deno) |
+| `lctx_execute_file` | Process files in sandbox |
+| `lctx_index` | Index text into knowledge base |
+| `lctx_search` | BM25 full-text search with Porter stemming |
+| `lctx_fetch_and_index` | Fetch URL, convert HTML to markdown, auto-index |
+| `lctx_stats` | Knowledge base + session statistics |
+| `lctx_doctor` | Diagnose installation |
+| `lctx_upgrade` | Check for updates |
+| `lctx_purge` | Clear knowledge base |
 
-// Search it later
-{ "tool": "lctx_search", "params": { "query": "database schema", "limit": 10 } }
-```
+### Exclusive (7 tools — what nobody else has)
 
-## CLI
+| Tool | Description |
+|------|-------------|
+| `lctx_scan` | Project DNA — auto-detect stack, languages, frameworks, patterns |
+| `lctx_semantic` | Semantic search via embeddings (Voyage AI / OpenAI + pgvector) |
+| `lctx_budget` | Context budget — token tracking with visual bar + warnings |
+| `lctx_git` | Git-aware indexing — branch, diff, commits, modified files |
+| `lctx_mcp` | MCP aggregator — list servers, estimate context cost, optimize |
+| `lctx_team_push` | Push to team knowledge base (shared via Supabase) |
+| `lctx_team_search` | Search team knowledge base |
 
-```bash
-logica-context          # Start MCP server (stdio mode)
-logica-context doctor   # Check installation and runtimes
-logica-context stats    # Show knowledge base stats
-logica-context purge    # Clear knowledge base
-```
+## Benchmarks
 
-## Comparison
+| Scenario | Without | With | Savings |
+|----------|---------|------|---------|
+| `git log` (100 commits) | ~8,000 tokens | ~200 tokens | **97.5%** |
+| `cat` 500-line file | ~4,000 tokens | ~150 tokens | **96.3%** |
+| `npm ls --all` | ~12,000 tokens | ~300 tokens | **97.5%** |
+| Fetch 50KB HTML page | ~12,500 tokens | ~500 tokens | **96.0%** |
 
-| Feature | Logica Context | context7 | raw shell tools |
-|---------|:-------------:|:--------:|:---------------:|
-| Token savings (avg) | **~97%** | ~40% | 0% |
-| Local SQLite index | ✅ | ❌ | ❌ |
-| BM25 full-text search | ✅ | ✅ | ❌ |
-| Session snapshots | ✅ | ❌ | ❌ |
-| Supabase cross-machine sync | ✅ | ❌ | ❌ |
-| Claude Code hooks | ✅ | ❌ | ❌ |
-| Multi-language sandbox | ✅ (8 langs) | ❌ | partial |
-| URL fetch + index | ✅ | ❌ | ❌ |
-| Zero config | ✅ | ✅ | ✅ |
-| Open source | ✅ | ✅ | — |
+## vs. Everything Else
 
-## Architecture
+| | Logica Context | context-mode | Raw tools |
+|---|:---:|:---:|:---:|
+| Sandbox + indexing | Yes | Yes | No |
+| **Project DNA** | **Yes** | No | No |
+| **Cross-session memory** | **Yes** | No | No |
+| **Team knowledge base** | **Yes** | No | No |
+| **Semantic search** | **Yes** | No | No |
+| **Context budget** | **Yes** | No | No |
+| **Git-aware indexing** | **Yes** | No | No |
+| **MCP aggregator** | **Yes** | No | No |
+| Session continuity | Yes | Yes | No |
+| Security layer | Yes | Partial | No |
+| License | MIT | Elastic-2.0 | — |
 
-```
-src/
-  server.ts           — MCP server, 10 tools registered
-  knowledge-base.ts   — SQLite FTS5 index (BM25 + Porter stemming)
-  sandbox.ts          — Isolated code execution per language
-  security.ts         — Command/path allowlist validation
-  exit-classify.ts    — Exit code → structured result
-  fetcher.ts          — URL fetch + HTML → Markdown
-  session-store.ts    — Per-session event log
-  snapshot-builder.ts — Context snapshot for compaction
-  supabase-adapter.ts — Optional cross-machine sync
-  cli.ts              — CLI entry point
+## Platforms
 
-hooks/                — Claude Code hook scripts (.mjs)
-configs/              — Per-platform configurations
-skills/               — Skill definitions for LogicaOS
-docs/                 — Extended documentation
-```
+Works with Claude Code, Cursor, Gemini CLI, VS Code Copilot, Codex, Kiro, Zed, and OpenCode. See `configs/` for per-platform setup.
 
-## Performance
+## Security
 
-| Operation | Time |
-|-----------|------|
-| MCP server startup | ~150ms |
-| Index 10KB text | ~5ms |
-| FTS5 search (1,000 entries) | ~2ms |
-| Batch execute (3 commands) | ~500ms |
-| Fetch + index URL | ~1–3s |
+Command validation, path restrictions, output sanitization, sandboxed execution with timeouts. See [SECURITY.md](SECURITY.md).
 
 ## Development
 
 ```bash
 git clone https://github.com/Rovemark/logica-context.git
 cd logica-context
-npm install
-npm run dev     # Hot reload via tsx
-npm test        # Run test suite
-npm run build   # Production build
+npm install && npm test && npm run build
 ```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, architecture deep-dive, and PR process.
-
-## Security
-
-See [SECURITY.md](SECURITY.md) for our vulnerability disclosure policy.
 
 ## License
 
-MIT © [Rovemark](https://github.com/Rovemark)
+[MIT](LICENSE) — use it however you want.
+
+---
+
+<p align="center">
+Built by <a href="https://github.com/Rovemark">Rovemark</a>
+</p>
