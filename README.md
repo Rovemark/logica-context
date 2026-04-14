@@ -2,8 +2,8 @@
 
 <div align="center">
 
-[![npm version](https://img.shields.io/npm/v/logica-context?color=blue&label=npm)](https://www.npmjs.com/package/logica-context)
-[![npm downloads](https://img.shields.io/npm/dm/logica-context?color=blue)](https://www.npmjs.com/package/logica-context)
+[![npm version](https://img.shields.io/badge/npm-v1.2.0-blue)](https://www.npmjs.com/package/logica-context)
+[![install](https://img.shields.io/badge/npx-logica--context-blue)](https://www.npmjs.com/package/logica-context)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![CI](https://github.com/Rovemark/logica-context/actions/workflows/ci.yml/badge.svg)](https://github.com/Rovemark/logica-context/actions/workflows/ci.yml)
 [![Node.js >=18](https://img.shields.io/badge/node-%3E%3D18-brightgreen)](https://nodejs.org)
