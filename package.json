@@ -69,5 +69,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/Rovemark"
   }
 }
