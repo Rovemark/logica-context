@@ -1,6 +1,6 @@
 {
   "name": "logica-context",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "MCP server that protects your AI context window via sandboxed execution and smart indexing",
   "author": "Rovemark <dev@rovemark.com>",
   "license": "MIT",
@@ -37,7 +37,7 @@
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",
     "@types/node": "^22.0.0",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.28.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
     "vitest": "^3.2.4"
