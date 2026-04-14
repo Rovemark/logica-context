@@ -44,15 +44,28 @@
   },
   "keywords": [
     "mcp",
-    "context",
+    "mcp-server",
+    "context-window",
     "claude",
+    "claude-code",
+    "cursor",
     "ai",
-    "logicaos",
-    "indexing"
+    "indexing",
+    "sqlite",
+    "fts5",
+    "sandbox",
+    "logicaos"
   ],
+  "homepage": "https://github.com/Rovemark/logica-context#readme",
+  "bugs": {
+    "url": "https://github.com/Rovemark/logica-context/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/Rovemark/logica-context.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

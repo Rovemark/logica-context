@@ -1,0 +1,93 @@
+name: "Bug Report"
+description: "Something is broken or behaving unexpectedly"
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. Fill in as much detail as possible — it speeds up the fix.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe the bug"
+      description: "What happened? What did you expect to happen?"
+      placeholder: "When I call lctx_execute with lang=python, the server returns..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: "Steps to reproduce"
+      description: "Minimal steps to reproduce the issue"
+      placeholder: |
+        1. Add logica-context to .mcp.json
+        2. Call lctx_execute with { code: '...', lang: 'python' }
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: "Expected behavior"
+      description: "What should have happened?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: "Relevant logs or error output"
+      description: "Paste any error messages, stack traces, or MCP logs here"
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: "logica-context version"
+      placeholder: "e.g. 1.0.0 (run: npx logica-context --version)"
+    validations:
+      required: true
+
+  - type: input
+    id: node
+    attributes:
+      label: "Node.js version"
+      placeholder: "e.g. 20.11.0 (run: node --version)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: "Operating System"
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: client
+    attributes:
+      label: "MCP Client"
+      options:
+        - Claude Code
+        - Claude Desktop
+        - Other
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: "Checklist"
+      options:
+        - label: "I searched existing issues and this is not a duplicate"
+          required: true
+        - label: "I ran `logica-context doctor` and included the output if relevant"
+          required: false
