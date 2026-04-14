@@ -1,0 +1,57 @@
+{
+  "name": "logica-context",
+  "version": "1.0.0",
+  "description": "MCP server that protects your AI context window via sandboxed execution and smart indexing",
+  "author": "Rovemark <dev@rovemark.com>",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "logica-context": "./dist/cli.mjs"
+  },
+  "main": "./dist/server.mjs",
+  "files": [
+    "dist/",
+    "hooks/",
+    "configs/",
+    "skills/",
+    ".claude-plugin/",
+    "web/",
+    "docs/",
+    "BENCHMARK.md",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node build.mjs",
+    "prepublishOnly": "npm run build",
+    "postinstall": "node scripts/postinstall.mjs",
+    "dev": "tsx src/server.ts",
+    "start": "node dist/server.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "better-sqlite3": "^11.7.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.4"
+  },
+  "keywords": [
+    "mcp",
+    "context",
+    "claude",
+    "ai",
+    "logicaos",
+    "indexing"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rovemark/logica-context.git"
+  }
+}

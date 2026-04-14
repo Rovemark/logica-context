@@ -1,0 +1,10 @@
+---
+description: Logica Context — Context Window Protection
+globs: **/*
+---
+
+Use Logica Context MCP tools to keep raw data in the sandbox:
+- `lctx_batch_execute` for research (commands + queries in one call)
+- `lctx_search` for follow-up questions
+- `lctx_execute` for log analysis and data processing
+- `lctx_fetch_and_index` instead of fetching URLs directly

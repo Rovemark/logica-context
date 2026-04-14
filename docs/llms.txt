@@ -1,0 +1,27 @@
+# Logica Context
+
+> MCP server that protects your AI context window via sandboxed execution and smart indexing.
+
+## What it does
+- Runs commands in a sandbox, indexes output, returns only summaries
+- Prevents raw tool output from flooding your conversation context
+- SQLite FTS5 knowledge base with BM25 ranking for fast search
+- Session continuity via snapshots that survive context compaction
+
+## Tools
+- lctx_batch_execute: Run N commands + N queries in one call
+- lctx_execute: Sandboxed code execution
+- lctx_execute_file: Process files in sandbox
+- lctx_index: Index text into knowledge base
+- lctx_search: Full-text search with BM25
+- lctx_fetch_and_index: Fetch URL, convert HTML, index
+- lctx_stats: Knowledge base statistics
+- lctx_doctor: Diagnose installation
+- lctx_upgrade: Check for updates
+- lctx_purge: Clear knowledge base
+
+## Install
+npm install -g logica-context
+
+## License
+MIT — https://github.com/Rovemark/logica-context

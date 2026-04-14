@@ -1,0 +1,28 @@
+{
+  "name": "logica-context",
+  "displayName": "Logica Context",
+  "version": "1.0.0",
+  "description": "Protects your AI context window via sandboxed execution and smart indexing",
+  "author": "Rovemark",
+  "license": "MIT",
+  "homepage": "https://github.com/Rovemark/logica-context",
+  "mcp": {
+    "type": "stdio",
+    "command": "npx",
+    "args": ["-y", "logica-context"]
+  },
+  "hooks": {
+    "PreToolUse": ["hooks/pretooluse.mjs", "hooks/routing-block.mjs"],
+    "PostToolUse": ["hooks/posttooluse.mjs"],
+    "PreCompact": ["hooks/precompact.mjs"],
+    "SessionStart": ["hooks/sessionstart.mjs"],
+    "UserPromptSubmit": ["hooks/userpromptsubmit.mjs"]
+  },
+  "skills": [
+    "skills/logica-context/SKILL.md",
+    "skills/lctx-doctor/SKILL.md",
+    "skills/lctx-stats/SKILL.md",
+    "skills/lctx-purge/SKILL.md",
+    "skills/lctx-upgrade/SKILL.md"
+  ]
+}

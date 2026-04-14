@@ -1,0 +1,11 @@
+src/
+tests/
+.logica-context/
+*.ts
+!*.d.ts
+tsconfig.json
+vitest.config.ts
+build.mjs
+.gitignore
+.git/
+node_modules/
