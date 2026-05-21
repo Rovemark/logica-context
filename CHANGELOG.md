@@ -1,4 +1,28 @@
 # Changelog
+## [1.3.0] - 2026-05-21
+
+### Added — Memory Persistence + Token Economy v2
+
+- **Cross-session decisions table** — new `decisions` table in SQLite. Auto-populated by `posttooluse.mjs` when:
+  - Tool output contains explicit `DECISION:`, `DECIDED:`, `CHOSE:`, `RESOLVED:` markers
+  - Edit/Write touches critical config files (`.env`, `package.json`, `tsconfig`, `IDENTITY.md`, `squad.yaml`, etc.)
+- **Tier 0 in snapshots** — `precompact.mjs` now includes cross-session decisions (last 7 days) at highest priority in snapshot XML
+- **Errors-encountered tier** — `precompact.mjs` captures error/exception patterns from outputs (separate tier)
+- **SessionStart multi-source recall**: now injects (1) last snapshot, (2) cross-session decisions last 14d, (3) outstanding pendings (TODO/FIXME from last 7d)
+- **Decision logging instructions** in SessionStart — Claude is now informed how to manually log decisions via SQL into the decisions table
+- **PreTool strict mode** (`LCTX_STRICT=1`): blocks Bash commands matching "massive output" patterns (recursive find/grep, unlimited git log, npm ls full, etc.) and forces `lctx_execute` alternative
+
+### Changed
+
+- Snapshot max size 2048 → 3072 bytes (room for Tier 0)
+- `pretooluse.mjs` rewrites Bash suggestions with severity tags (high/medium/low)
+- WebFetch flagged as high-severity by default (recommends `lctx_fetch_and_index`)
+
+### Improved
+
+- Documentation clarity in hooks
+- Indexed `decisions` table for fast cross-session retrieval
+- Hooks remain backward-compatible (no schema breaking)
 
 All notable changes to this project will be documented in this file.
 
